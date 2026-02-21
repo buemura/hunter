@@ -8,6 +8,13 @@ Hunter is a CLI tool designed for developers that performs pentests as an ethica
 go install github.com/buemura/hunter/cmd/hunter@latest
 ```
 
+> **Note:** Make sure `$GOPATH/bin` is in your `PATH`. If you get `command not found: hunter` after installing, run:
+>
+> ```bash
+> echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.zshrc
+> source ~/.zshrc
+> ```
+
 Or build from source:
 
 ```bash
@@ -44,7 +51,13 @@ Start the web interface to run scans from a browser:
 hunter serve --addr :8080
 ```
 
-Open `http://localhost:8080` to access the web interface. From there you can configure scan targets, select scanners, and view results with severity breakdowns and remediation tips.
+You can specify any port:
+
+```bash
+hunter serve --addr :3000
+```
+
+Open `http://localhost:<port>` to access the web interface. From there you can configure scan targets, select scanners, and view results with severity breakdowns and remediation tips.
 
 ![Hunter Web UI](docs/screenshots/web-ui.png)
 
