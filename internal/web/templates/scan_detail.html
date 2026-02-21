@@ -1,0 +1,121 @@
+{{template "base" .}}
+{{define "title"}} — Scan {{truncateID .Job.ID}}{{end}}
+{{define "content"}}
+<div class="page-header">
+  <div>
+    <h1>Scan Details</h1>
+    <p class="subtitle mono">{{.Job.ID}}</p>
+  </div>
+  <a href="/scans" class="btn btn-secondary">Back to History</a>
+</div>
+
+<div class="meta-grid">
+  <div class="meta-item">
+    <span class="meta-label">Target</span>
+    <span class="meta-value">{{if .Job.Target.URL}}{{.Job.Target.URL}}{{else}}{{.Job.Target.Host}}{{end}}</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Status</span>
+    <span class="status-badge status-{{.Job.Status}}" id="scan-status">{{.Job.Status}}</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Created</span>
+    <span class="meta-value">{{formatTime .Job.CreatedAt}}</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Started</span>
+    <span class="meta-value">{{formatTime .Job.StartedAt}}</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Completed</span>
+    <span class="meta-value" id="completed-at">{{formatTime .Job.CompletedAt}}</span>
+  </div>
+  <div class="meta-item">
+    <span class="meta-label">Duration</span>
+    <span class="meta-value" id="duration">{{if not .Job.CompletedAt.IsZero}}{{formatDuration (.Job.CompletedAt.Sub .Job.StartedAt)}}{{else}}-{{end}}</span>
+  </div>
+</div>
+
+{{if or (eq (printf "%s" .Job.Status) "pending") (eq (printf "%s" .Job.Status) "running")}}
+<div class="card" id="progress-section">
+  <h2>Progress</h2>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-bar" style="width: {{progressPct .Job.Progress.CompletedScanners .Job.Progress.TotalScanners}}%"></div>
+  </div>
+  <p class="progress-text" id="progress-text">
+    {{.Job.Progress.CompletedScanners}} / {{.Job.Progress.TotalScanners}} scanners complete
+    {{if .Job.Progress.CurrentScanner}} &mdash; running <strong>{{.Job.Progress.CurrentScanner}}</strong>{{end}}
+  </p>
+</div>
+<script>pollScanStatus("{{.Job.ID}}");</script>
+{{end}}
+
+{{if eq (printf "%s" .Job.Status) "failed"}}
+<div class="alert alert-error">
+  <strong>Scan failed:</strong> {{.Job.Error}}
+</div>
+{{end}}
+
+{{if eq (printf "%s" .Job.Status) "completed"}}
+<div class="card severity-summary">
+  <h2>Summary</h2>
+  <div class="severity-pills">
+    <span class="sev-pill sev-critical">{{countSeverity .Job.Results "CRITICAL"}} Critical</span>
+    <span class="sev-pill sev-high">{{countSeverity .Job.Results "HIGH"}} High</span>
+    <span class="sev-pill sev-medium">{{countSeverity .Job.Results "MEDIUM"}} Medium</span>
+    <span class="sev-pill sev-low">{{countSeverity .Job.Results "LOW"}} Low</span>
+    <span class="sev-pill sev-info">{{countSeverity .Job.Results "INFO"}} Info</span>
+    <span class="total-count">{{totalFindings .Job.Results}} total findings</span>
+  </div>
+</div>
+
+<div class="action-bar">
+  <a href="/api/v1/scans/{{.Job.ID}}" class="btn btn-secondary" download="scan-{{truncateID .Job.ID}}.json">Download JSON</a>
+  <a href="/api/v1/scans/{{.Job.ID}}/report" class="btn btn-secondary" target="_blank">View HTML Report</a>
+  <button class="btn btn-danger" onclick="deleteScan('{{.Job.ID}}')">Delete Scan</button>
+</div>
+
+{{range .Job.Results}}
+<div class="card results-card">
+  <div class="results-header">
+    <h3>{{.ScannerName}}</h3>
+    <span class="pill">{{len .Findings}} findings</span>
+  </div>
+
+  {{if .Error}}
+  <div class="alert alert-error">{{.Error}}</div>
+  {{else if not .Findings}}
+  <p class="text-muted">No findings from this scanner.</p>
+  {{else}}
+  <table class="data-table findings-table">
+    <thead>
+      <tr>
+        <th class="col-severity">Severity</th>
+        <th>Title</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Findings}}
+      <tr>
+        <td><span class="sev-pill sev-{{severityClass .Severity}}">{{.Severity}}</span></td>
+        <td class="cell-title">{{.Title}}</td>
+        <td>
+          {{.Description}}
+          {{if or .Evidence .Remediation}}
+          <details class="finding-details">
+            <summary>Show details</summary>
+            {{if .Evidence}}<div class="detail-block"><strong>Evidence:</strong><pre>{{.Evidence}}</pre></div>{{end}}
+            {{if .Remediation}}<div class="detail-block"><strong>Remediation:</strong><p>{{.Remediation}}</p></div>{{end}}
+          </details>
+          {{end}}
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{end}}
+</div>
+{{end}}
+{{end}}
+{{end}}

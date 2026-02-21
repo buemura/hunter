@@ -1,0 +1,50 @@
+{{template "base" .}}
+{{define "title"}} — Scan History{{end}}
+{{define "content"}}
+<div class="page-header">
+  <h1>Scan History</h1>
+  <a href="/" class="btn btn-primary">New Scan</a>
+</div>
+
+<div class="card" id="scans-table-wrapper">
+  {{if not .Jobs}}
+  <div class="empty-state">
+    <p>No scans yet. <a href="/">Start your first scan</a>.</p>
+  </div>
+  {{else}}
+  <table class="data-table" id="scans-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Target</th>
+        <th>Scanners</th>
+        <th>Status</th>
+        <th>Findings</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Jobs}}
+      <tr>
+        <td><a href="/scans/{{.ID}}" class="link-mono">{{truncateID .ID}}</a></td>
+        <td class="cell-target">{{if .Target.URL}}{{.Target.URL}}{{else}}{{.Target.Host}}{{end}}</td>
+        <td class="cell-scanners">{{range .Scanners}}<span class="pill">{{.}}</span>{{end}}</td>
+        <td><span class="status-badge status-{{.Status}}">{{.Status}}</span></td>
+        <td>{{.FindingCount}}</td>
+        <td class="cell-time">{{formatTime .CreatedAt}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{end}}
+</div>
+
+<script>
+(function() {
+  var hasRunning = {{.HasRunning}};
+  if (hasRunning) {
+    setInterval(function() { refreshScanList(); }, 5000);
+  }
+})();
+</script>
+{{end}}

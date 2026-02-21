@@ -1,0 +1,33 @@
+{{define "base"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hunter{{block "title" .}} — Security Scanner{{end}}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Hunter
+      </a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">New Scan</a>
+        <a href="/scans" class="nav-link">Scan History</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    {{block "content" .}}{{end}}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">Hunter — Security Scanning Tool</div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>{{end}}

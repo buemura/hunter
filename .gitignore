@@ -1,0 +1,33 @@
+# Binaries and build output
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+.coverprofile
+
+# Go workspace file checksum
+go.work.sum
+
+# Environment files
+.env
+.env.*
+
+# IDE/editor settings
+.idea/
+.vscode/
+
+# OS-generated files
+.DS_Store
+
+
+# Agents
+.claude/
+CLAUDE.md

@@ -1,0 +1,9 @@
+{{template "base" .}}
+{{define "title"}} — Not Found{{end}}
+{{define "content"}}
+<div class="empty-state">
+  <h1>404 — Not Found</h1>
+  <p>{{.Message}}</p>
+  <a href="/scans" class="btn btn-primary" style="margin-top:1rem;display:inline-block">Back to Scan History</a>
+</div>
+{{end}}
